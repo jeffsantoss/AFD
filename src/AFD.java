@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.ListResourceBundle;
 
 import javax.swing.JOptionPane;
 
@@ -50,14 +51,14 @@ public class AFD {
 					break;
 		}
 			if(estadoInicial.length() > 1) {
-					throw new AutomatoException(this);
+					throw new AutomatoException(this,"Estado inicial inváido.");
 			}
 	}
 	
 	public void validarTransição(Transicao trans) throws AutomatoException{
 		for(int i=0;i<Alfabeto.length();i++){
 			if(trans.getElemento() != Alfabeto.charAt(i)){
-				throw new AutomatoException(this);
+				throw new AutomatoException(this,"Elemento inexistente no seu alfabeto");
 			}	
 		}
 		
@@ -65,20 +66,41 @@ public class AFD {
 	}
 	
 	public void validarAutomato(String Input) throws AutomatoException {
-	
-			for(int i =0;i<Input.length();i++){
+		
+			for(int i=0;i<Input.length();i++){
 				if(Input.charAt(i) != Alfabeto.charAt(i)) {
 					this.valido = false;
-					throw new AutomatoException(this);
-				}		
+					throw new AutomatoException(this,"Inserido elemento inexistente no alfabeto");
+				}	
+			}	
+			// 1° Verifico se meu primeiro caractere do input vem de um EstadoInicial
+			
+			if (Input.charAt(0) == listTransicao.get(0).getElemento()
+				&& listTransicao.get(0).geteOrigem() != EstadoInicial[EstadoInicial.length])
+			{
+				throw new AutomatoException(this,"O Automâto deve sempre começar pelo Estado Inicial");
 			}
 			
-			for(int i=0;i<Input.length();i++) {
-				listTransicao.get(i).geteOrigem()	
-				listTransicao.get(i).geteDestino()
+			for(int i = 0;i<Input.length();i++){
+				estadosOrigens(Input.charAt(i));
+					estadosDestinos(Input.charAt(i));
 			}
-				
 			
+	}
+	
+	public void estadosDestinos(char Elemento){
+		for(int i = 0 ;i<listTransicao.size();i++){
+			listTransicao.get(i).geteDestino();
+		}
+	}
+	
+	public void estadosOrigens(char Elemento[]){
+		for(int i = 0 ;i<listTransicao.size();i++){
+			Elemento = listTransicao.get(i).getElemento();
+			listTransicao.get(i).geteOrigem();
+		
+		
+
 	}
 	
 	
