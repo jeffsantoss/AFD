@@ -74,9 +74,11 @@ public class AFD {
 			}
 		}	
 		
-		if(Input.charAt(0) != listTransicao.get(0).getElemento()) {
-			this.valido = false;
-			throw new AutomatoException(this, "AUTÔMATO INVÁLIDO! O elemento" + Input.charAt(0) + "não sai do Estado Inicial");
+		 for(int j = 0;i<listTransicao.size();j++)
+		 	if(Input.charAt(0) == listTransicao.get(j).getElemento()) {
+				if(listTransicao.get(j).geteOrigem() != this.EstadoInicial) {
+					this.valido = false;
+						throw ne AutomatoException(this, "AUTÔMATO INVÁLIDO! O elemento" + Input.charAt(0) + "não sai do Estado Inicial");
 		}
 		// verifico os estados finais.
 
@@ -87,7 +89,7 @@ public class AFD {
 						System.out.println("Estado destino Transição: " +EstadosFinal.charAt(j));
 						System.out.println("Estados finais: " +EstadosFinal.charAt(j));
 							this.valido = false;
-							throw new AutomatoException(this, "AUTÔMATO INVÁLIDO! o elemento " + Input.charAt(0) + " da sua entrada não terminou no estado final");
+							throw new AutomatoException(this, "AUTÔMATO INVÁLIDO! o elemento " + Input.charAt(Input.leght() - 1) + " da sua entrada não terminou no estado final");
 					}
 					else
 						break;
