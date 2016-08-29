@@ -24,12 +24,12 @@ public class AFD {
 		}
 	}
 	
-	public void AdicionarTransiÁ„o(int eOrigem, char Elemento,int eDestino){		
+	public void AdicionarTransi√ß√£o(int eOrigem, char Elemento,int eDestino){		
 		int index = listTransicao.size();
 		
 		try {
 			listTransicao.add(new Transicao(eOrigem,Elemento,eDestino));
-			validarTransiÁ„o(listTransicao.get(index)); // pega sempre o ˙ltimo e valida.
+			validarTransi√ß√£o(listTransicao.get(index)); // pega sempre o √∫ltimo e valida.
 		} catch (Exception e) {
 			this.valido = false;
 		}
@@ -37,13 +37,12 @@ public class AFD {
 	}
 	
 	public void definirEstadosFinais(String estadosFinais) {
-			for(int i=0;i<estadosFinais.length();i++){
-				if(estadosFinais.charAt(i) == ',' || estadosFinais.charAt(i) == ' ')
-					continue;
-				else
-					this.EstadosFinal = this.EstadosFinal  + estadosFinais.charAt(i);
-			}	
-	}
+		estadosFinais.replaceAll(",", "");
+		estadosFinais.replaceAll(" ", "");
+		
+		if(Estados.indexOf(estadoInicial) == -1)
+			throw new AutomatoException(this,"AUT√îMATO INV√ÅLIDO! O estado final citado q"+Integer.parseInt(estadoInicial)+" n√£o √© um estado v√°lido");
+		}
 
 	public void definirEstadoInicial(String estadoInicial) throws AutomatoException {
 		
@@ -51,33 +50,33 @@ public class AFD {
 		estadoInicial.replaceAll(" ", "");
 		
 		if(Estados.indexOf(estadoInicial) == -1)
-			throw new AutomatoException(this,"AUT‘MATO INV¡LIDO! O estado inicial q"+Integer.parseInt(estadoInicial)+" n„o pertence aos estados");
+			throw new AutomatoException(this,"AUT√îMATO INV√ÅLIDO! O estado inicial q"+Integer.parseInt(estadoInicial)+" n√£o pertence aos estados");
 			if(estadoInicial.length() > 1) {
 				this.valido = false;
-					throw new AutomatoException(this,"AUT‘MATO INV¡LIDO! SÛ pode haver apenas 1 estado Inicial");
+					throw new AutomatoException(this,"AUT√îMATO INV√ÅLIDO! S√≥ pode haver apenas 1 estado Inicial");
 			}
 	}
 		
-	public void validarTransiÁ„o(Transicao trans) throws AutomatoException{
+	public void validarTransi√ß√£o(Transicao trans) throws AutomatoException{
 		
-		if (Alfabeto.indexOf(trans.getElemento()) == -1 )	// isso mostra se existe ou n„o
-			throw new AutomatoException(this, "AUT‘MATO INV¡LIDO! Verifique se o elemento " +trans.getElemento()+ " da sua transiÁ„o pertence ao seu alfabeto");
+		if (Alfabeto.indexOf(trans.getElemento()) == -1 )	// isso mostra se existe ou n√£o
+			throw new AutomatoException(this, "AUT√îMATO INV√ÅLIDO! Verifique se o elemento " +trans.getElemento()+ " da sua transi√ß√£o pertence ao seu alfabeto");
 		if (Estados.indexOf(Integer.toString(trans.geteOrigem())) == -1 || Estados.indexOf(Integer.toString(trans.geteDestino())) == -1) 
-			throw new AutomatoException(this, "AUT‘MATO INV¡LIDO! Verifique se seu estados de transiÁ„o");
+			throw new AutomatoException(this, "AUT√îMATO INV√ÅLIDO! Verifique se seu estados de transi√ß√£o");
 	}
 	
 	public void validarEntrada(String Input) throws AutomatoException {
 		for(int i = 0;i<Input.length();i++) 
 		{
-			if (Alfabeto.indexOf(Input.charAt(i)) == -1 )	{// isso mostra se existe ou n„o
+			if (Alfabeto.indexOf(Input.charAt(i)) == -1 )	{// isso mostra se existe ou n√£o
 				this.valido = false;
-					throw new AutomatoException(this, "AUT‘MATO INV¡LIDO! Verifique se os elementos da sua entrada pertence ao alfabeto");
+					throw new AutomatoException(this, "AUT√îMATO INV√ÅLIDO! Verifique se os elementos da sua entrada pertence ao alfabeto");
 			}
 		}	
 		
 		if(Input.charAt(0) != listTransicao.get(0).getElemento()) {
 			this.valido = false;
-			throw new AutomatoException(this, "AUT‘MATO INV¡LIDO! O elemento" + Input.charAt(0) + "n„o sai do Estado Inicial");
+			throw new AutomatoException(this, "AUT√îMATO INV√ÅLIDO! O elemento" + Input.charAt(0) + "n√£o sai do Estado Inicial");
 		}
 		// verifico os estados finais.
 
@@ -85,10 +84,10 @@ public class AFD {
 			if(Input.charAt(Input.length() - 1 ) == listTransicao.get(i).getElemento()) {
 				for(int j=0;j<EstadosFinal.length();j++){
 					if(listTransicao.get(i).geteDestino() != Character.getNumericValue(EstadosFinal.charAt(j))){
-						System.out.println("Estado destino TransiÁ„o: " +EstadosFinal.charAt(j));
+						System.out.println("Estado destino Transi√ß√£o: " +EstadosFinal.charAt(j));
 						System.out.println("Estados finais: " +EstadosFinal.charAt(j));
 							this.valido = false;
-							throw new AutomatoException(this, "AUT‘MATO INV¡LIDO! o elemento " + Input.charAt(0) + " da sua entrada n„o terminou no estado final");
+							throw new AutomatoException(this, "AUT√îMATO INV√ÅLIDO! o elemento " + Input.charAt(0) + " da sua entrada n√£o terminou no estado final");
 					}
 					else
 						break;
@@ -102,7 +101,7 @@ public class AFD {
 		delta = delta.replaceAll(" ", "");
 	
 		for(int i=0;i<delta.length();i+=3){
-			this.AdicionarTransiÁ„o(Character.getNumericValue(delta.charAt(i)), delta.charAt(i+1), Character.getNumericValue(delta.charAt(i+2)));		
+			this.AdicionarTransi√ß√£o(Character.getNumericValue(delta.charAt(i)), delta.charAt(i+1), Character.getNumericValue(delta.charAt(i+2)));		
 		}
 	}
 	
