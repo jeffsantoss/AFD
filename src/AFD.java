@@ -1,5 +1,4 @@
 import java.util.ArrayList;
-import java.util.ListResourceBundle;
 
 import javax.swing.JOptionPane;
 
@@ -7,100 +6,155 @@ import javax.swing.JOptionPane;
 public class AFD {
 	
 	private ArrayList<Transicao> listTransicao = new ArrayList<Transicao>();
-	private String Alfabeto;
-	private int Estados[];
-	private int EstadosFinal[];
-	private int EstadoInicial[];
-	private boolean valido;
+	private String Alfabeto = "";
+	private String Estados = "";
+	private String EstadosFinal = "";
+	private String EstadoInicial = "";
+	private boolean valido = true;
 	
-	public AFD(String Estados)
-	{		
+	public AFD() {
 	}
-	
+
 	public void setarEstados(String Estados){
-		for(int i = 0,j = 0;i<Estados.length();i++,j++) {
-			if(Estados.charAt(i) != ',')
+		for(int i = 0;i < Estados.length();i++) {
+			if(Estados.charAt(i) == ',' || Estados.charAt(i) == ' ')
 				continue;
 			else
-				this.Estados[j++] = Integer.parseInt(Estados, i);
+				this.Estados = this.Estados + Estados.charAt(i);
 		}
 	}
 	
-	public void AdicionarTransição(int eOrigem, char Elemento,int eDestino){
+	public void AdicionarTransição(int eOrigem, char Elemento,int eDestino){		
+		int index = listTransicao.size();
+		
 		try {
 			listTransicao.add(new Transicao(eOrigem,Elemento,eDestino));
-			validarTransição(listTransicao.get(listTransicao.size())); // pega sempre o último e valida.
+			validarTransição(listTransicao.get(index)); // pega sempre o último e valida.
 		} catch (Exception e) {
-			e.printStackTrace();
+			this.valido = false;
 		}
+		index--;
 	}
 	
 	public void definirEstadosFinais(String estadosFinais) {
-			for(int i=0;i<Estados.length;i++){
-				if(Estados[i] == Integer.parseInt(estadosFinais))
-					EstadosFinal[i] = Integer.parseInt(estadosFinais);
-			}
+			for(int i=0;i<estadosFinais.length();i++){
+				if(estadosFinais.charAt(i) == ',' || estadosFinais.charAt(i) == ' ')
+					continue;
+				else
+					this.EstadosFinal = this.EstadosFinal  + estadosFinais.charAt(i);
+			}	
 	}
-	
+
 	public void definirEstadoInicial(String estadoInicial) throws AutomatoException {
 		
-		for(int i=0;i<Estados.length;i++) {
-			if(Estados[i] == Integer.parseInt(estadoInicial))
-				EstadoInicial[i] = Integer.parseInt(estadoInicial);
-				if(estadoInicial.length() > 1)
-					break;
-		}
+		estadoInicial.replaceAll(",", "");
+		estadoInicial.replaceAll(" ", "");
+		
+		if(Estados.indexOf(estadoInicial) == -1)
+			throw new AutomatoException(this,"AUTÔMATO INVÁLIDO! O estado inicial q"+Integer.parseInt(estadoInicial)+" não pertence aos estados");
 			if(estadoInicial.length() > 1) {
-					throw new AutomatoException(this,"Estado inicial inváido.");
+				this.valido = false;
+					throw new AutomatoException(this,"AUTÔMATO INVÁLIDO! Só pode haver apenas 1 estado Inicial");
 			}
 	}
-	
+		
 	public void validarTransição(Transicao trans) throws AutomatoException{
-		for(int i=0;i<Alfabeto.length();i++){
-			if(trans.getElemento() != Alfabeto.charAt(i)){
-				throw new AutomatoException(this,"Elemento inexistente no seu alfabeto");
-			}	
-		}
 		
-		
+		if (Alfabeto.indexOf(trans.getElemento()) == -1 )	// isso mostra se existe ou não
+			throw new AutomatoException(this, "AUTÔMATO INVÁLIDO! Verifique se o elemento " +trans.getElemento()+ " da sua transição pertence ao seu alfabeto");
+		if (Estados.indexOf(Integer.toString(trans.geteOrigem())) == -1 || Estados.indexOf(Integer.toString(trans.geteDestino())) == -1) 
+			throw new AutomatoException(this, "AUTÔMATO INVÁLIDO! Verifique se seu estados de transição");
 	}
 	
-	public void validarAutomato(String Input) throws AutomatoException {
-		
-			for(int i=0;i<Input.length();i++){
-				if(Input.charAt(i) != Alfabeto.charAt(i)) {
-					this.valido = false;
-					throw new AutomatoException(this,"Inserido elemento inexistente no alfabeto");
-				}	
-			}	
-			// 1° Verifico se meu primeiro caractere do input vem de um EstadoInicial
-			
-			if (Input.charAt(0) == listTransicao.get(0).getElemento()
-				&& listTransicao.get(0).geteOrigem() != EstadoInicial[EstadoInicial.length])
-			{
-				throw new AutomatoException(this,"O Automâto deve sempre começar pelo Estado Inicial");
+	public void validarEntrada(String Input) throws AutomatoException {
+		for(int i = 0;i<Input.length();i++) 
+		{
+			if (Alfabeto.indexOf(Input.charAt(i)) == -1 )	{// isso mostra se existe ou não
+				this.valido = false;
+					throw new AutomatoException(this, "AUTÔMATO INVÁLIDO! Verifique se os elementos da sua entrada pertence ao alfabeto");
 			}
-			
-			for(int i = 0;i<Input.length();i++){
-				estadosOrigens(Input.charAt(i));
-					estadosDestinos(Input.charAt(i));
-			}
-			
-	}
-	
-	public void estadosDestinos(char Elemento){
-		for(int i = 0 ;i<listTransicao.size();i++){
-			listTransicao.get(i).geteDestino();
+		}	
+		
+		if(Input.charAt(0) != listTransicao.get(0).getElemento()) {
+			this.valido = false;
+			throw new AutomatoException(this, "AUTÔMATO INVÁLIDO! O elemento" + Input.charAt(0) + "não sai do Estado Inicial");
 		}
-	}
-	
-	public void estadosOrigens(char Elemento[]){
-		for(int i = 0 ;i<listTransicao.size();i++){
-			Elemento = listTransicao.get(i).getElemento();
-			listTransicao.get(i).geteOrigem();
-		
-		
+		// verifico os estados finais.
 
+		for(int i=0;i<listTransicao.size();i++)
+			if(Input.charAt(Input.length() - 1 ) == listTransicao.get(i).getElemento()) {
+				for(int j=0;j<EstadosFinal.length();j++){
+					if(listTransicao.get(i).geteDestino() != Character.getNumericValue(EstadosFinal.charAt(j))){
+						System.out.println("Estado destino Transição: " +EstadosFinal.charAt(j));
+						System.out.println("Estados finais: " +EstadosFinal.charAt(j));
+							this.valido = false;
+							throw new AutomatoException(this, "AUTÔMATO INVÁLIDO! o elemento " + Input.charAt(0) + " da sua entrada não terminou no estado final");
+					}
+					else
+						break;
+				}
+		}
+		
+	}
+	
+	public void Delta(String delta){			
+		delta = delta.replaceAll(",", "");
+		delta = delta.replaceAll(" ", "");
+	
+		for(int i=0;i<delta.length();i+=3){
+			this.AdicionarTransição(Character.getNumericValue(delta.charAt(i)), delta.charAt(i+1), Character.getNumericValue(delta.charAt(i+2)));		
+		}
+	}
+	
+	
+	public ArrayList<Transicao> getListTransicao() {
+		return listTransicao;
+	}
+
+	public void setListTransicao(ArrayList<Transicao> listTransicao) {
+		this.listTransicao = listTransicao;
+	}
+
+	public String getAlfabeto() {
+		return Alfabeto.replaceAll(",", "");
+	}
+
+	public void setAlfabeto(String alfabeto) {
+		this.Alfabeto = alfabeto;
+	}
+
+
+
+	public String getEstados() {
+		return Estados.replaceAll(",", "");
+	}
+
+	public void setEstados(String estados) {
+		Estados = estados;
+	}
+
+	public String getEstadosFinal() {
+		return EstadosFinal;
+	}
+
+	public void setEstadosFinal(String estadosFinal) {
+		EstadosFinal = estadosFinal;
+	}
+
+	public String getEstadoInicial() {
+		return EstadoInicial;
+	}
+
+	public void setEstadoInicial(String estadoInicial) {
+		EstadoInicial = estadoInicial;
+	}
+
+	public boolean isValido() {
+		return valido;
+	}
+
+	public void setValido(boolean valido) {
+		this.valido = valido;
 	}
 	
 	

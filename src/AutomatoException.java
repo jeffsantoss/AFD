@@ -5,9 +5,9 @@ public class AutomatoException extends Exception {
 	private AFD automato;
 	private String mensagem;
 	
-	public AutomatoException(AFD automato,String mensagem) {
+	public AutomatoException(AFD automato, String MensagemErro) {
 		this.automato = automato;
-		JOptionPane.showMessageDialog(null, mensagem);
+		JOptionPane.showMessageDialog(null, MensagemErro);
 	}
 	
 }
