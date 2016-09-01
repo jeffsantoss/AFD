@@ -15,22 +15,28 @@ public class Janela extends JFrame implements ActionListener{
 	private JTable table = new JTable();
 	private DefaultTableModel model;
 	private AFD automato;
-	private JPanel PanelTable,PanelTexts;
+	private JPanel PanelTable,PanelTexts,PanelEntrada;
 	private JTextField textAlfabeto,textEstado;
 	private JTextField textDelta,textEstadoFIM;
 	private JTextField textEstadoINI,textInput;
 	private JButton newValue,verificar,montarTabela,editar; 
 	
 	public Janela(){
-		super("AutÙmato Deterministico Finito");
+		super("Aut√¥mato Deterministico Finito");
+
+		PanelTexts = new JPanel(new MigLayout());
+		PanelTexts.setBorder(BorderFactory.createLoweredSoftBevelBorder());
+		PanelTexts.setBounds(0, 0, 530, 350);
+		
 		PanelTable = new JPanel(new MigLayout());
 		PanelTable.setBorder(BorderFactory.createLoweredSoftBevelBorder());
 		PanelTable.setBounds(0, 220, 805, 450);
 		
-		PanelTexts = new JPanel(new MigLayout());
-		PanelTexts.setBorder(BorderFactory.createLoweredSoftBevelBorder());
-		PanelTexts.setBounds(0, 0, 500, 350);
 
+		PanelEntrada = new JPanel(new MigLayout());
+		PanelEntrada.setBorder(BorderFactory.createLoweredSoftBevelBorder());
+		PanelEntrada.setBounds(0, 500, 500, 350);
+		
 		textAlfabeto = new JTextField(20);
 		textEstado =  new JTextField(20);
 		textDelta = new JTextField(50);
@@ -38,23 +44,23 @@ public class Janela extends JFrame implements ActionListener{
 		textEstadoINI = new JTextField(20);
 		textInput = new JTextField(20);
 		
-		PanelTexts.add(new JLabel("Alfabeto"));
+		PanelTexts.add(new JLabel("Alfabeto ( Œ£ ) - Ex: a,b,c "));
 		PanelTexts.add(textAlfabeto,"wrap");
-		PanelTexts.add(new JLabel("Estados"));
+		PanelTexts.add(new JLabel("Estados ( Q ) - Ex: 1,2,3"));
 		PanelTexts.add(textEstado,"wrap");
-		PanelTexts.add(new JLabel("Delta"));
+		PanelTexts.add(new JLabel("Delta ( Œ¥ ) - Ex: 1c1, 1a2, 2b3"));
 		PanelTexts.add(textDelta,"wrap");
-		PanelTexts.add(new JLabel("Estados Finais"));
+		PanelTexts.add(new JLabel("Estados Finais (F) - Ex: 2,3"));
 		PanelTexts.add(textEstadoFIM,"wrap");
-		PanelTexts.add(new JLabel("Estados iniciais"));
+		PanelTexts.add(new JLabel("Estados iniciais (I) - Ex: 1"));
 		PanelTexts.add(textEstadoINI,"wrap");
-		PanelTexts.add(new JLabel("Entrada"));
+		PanelTexts.add(new JLabel("Entrada - Ex aaabbcc"));
 		PanelTexts.add(textInput,"wrap");
 		
 		newValue = new JButton("Novo AFD");
 		PanelTexts.add(newValue);
 		newValue.addActionListener(this);
-		verificar = new JButton("Validar Autom‚to");
+		verificar = new JButton("Validar Autom√¢to");
 		PanelTexts.add(verificar);
 		verificar.addActionListener(this);
 		verificar.setEnabled(false);
@@ -62,18 +68,18 @@ public class Janela extends JFrame implements ActionListener{
 		PanelTexts.add(montarTabela);
 		montarTabela.addActionListener(this);
 		montarTabela.setEnabled(false);
-		editar = new JButton("Editar AFD atual");
+		editar = new JButton("Editar AFD");
 		PanelTexts.add(editar);
 		editar.addActionListener(this);
 		editar.setEnabled(false);
 
-	
 		EditarJanela();
 		
 		PanelTable.add(table);
 		DesabilitarCampos();
 		this.add(PanelTexts);
 		this.add(PanelTable);
+
 	}
 	
 	public void SetarValores(){
@@ -81,25 +87,16 @@ public class Janela extends JFrame implements ActionListener{
 		automato.setAlfabeto(textAlfabeto.getText());
 		automato.setarEstados(textEstado.getText());
 		automato.Delta(textDelta.getText());
-		try {
-			automato.definirEstadoInicial(textEstadoINI.getText());
-		} catch (AutomatoException e) {
-			automato = null;
-		}
+		automato.setEstadoInicial(Integer.parseInt(textEstadoINI.getText()));
 		automato.definirEstadosFinais(textEstadoFIM.getText());	
-		try {
-			automato.validarEntrada(textInput.getText());
-		} catch (AutomatoException e) {
-			automato = null;
-		}
 	}
 	
 	public void EditarJanela(){
 		setContentPane(new JPanel());
 		setLayout(null);
-		setResizable(false);
+		//setResizable(false);
 		setVisible(true);
-		setMinimumSize(new Dimension(500,500));
+		setMinimumSize(new Dimension(550,500));
 		setLocationRelativeTo(null);
 	}
 	
@@ -130,7 +127,7 @@ public class Janela extends JFrame implements ActionListener{
 	
 		model.setColumnCount(automato.getAlfabeto().length() + 1);
 		model.setRowCount(automato.getEstados().length() + 1);
-		table.setValueAt("        E/A", 0, 0);
+		table.setValueAt("        Q/Œ£ ", 0, 0);
 
 		for(int i =0;i<automato.getAlfabeto().length();i++){
 			table.setValueAt(automato.getAlfabeto().charAt(i), 0, i+1);			
@@ -189,10 +186,18 @@ public class Janela extends JFrame implements ActionListener{
 				verificar.setEnabled(false);
 				habilitarCampos();
 			} else if(e.getSource() == verificar){
+				SetarValores();
+				try {
+					automato.validarEntrada(textInput.getText());
+				} catch (AutomatoException e1) {
+					automato = null;
+				}
 				if(automato.isValido())
-					JOptionPane.showMessageDialog(null, "Seu autÙmato È v·lido!");
+					JOptionPane.showMessageDialog(null, "Seu aut√¥mato √© v√°lido!");
 				else
-					JOptionPane.showMessageDialog(null, "Seu autÙmato È inv·lido!");
+					JOptionPane.showMessageDialog(null, "Seu aut√¥mato √© inv√°lido!");
+				
+				JOptionPane.showMessageDialog(null, "Veja o caminho da sua entrada\n" + automato.getEntrada());
 				montarTabela.setEnabled(true);
 			} else if(e.getSource() == montarTabela){
 				SetarValores();
@@ -202,7 +207,6 @@ public class Janela extends JFrame implements ActionListener{
 				DesabilitarCampos();
 			} else if(e.getSource() == editar){
 				habilitarCampos();
-				verificar.setEnabled(false);
 			}
 	}
 

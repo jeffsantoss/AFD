@@ -9,7 +9,8 @@ public class AFD {
 	private String Alfabeto = "";
 	private String Estados = "";
 	private String EstadosFinal = "";
-	private String EstadoInicial = "";
+	private int EstadoInicial;
+	private String Entrada = "";
 	private boolean valido = true;
 	
 	public AFD() {
@@ -24,12 +25,12 @@ public class AFD {
 		}
 	}
 	
-	public void AdicionarTransi√ß√£o(int eOrigem, char Elemento,int eDestino){		
+	public void AdicionarTransiÁ„o(int eOrigem, char Elemento,int eDestino){		
 		int index = listTransicao.size();
 		
 		try {
 			listTransicao.add(new Transicao(eOrigem,Elemento,eDestino));
-			validarTransi√ß√£o(listTransicao.get(index)); // pega sempre o √∫ltimo e valida.
+			validarTransiÁ„o(listTransicao.get(index)); // pega sempre o ˙ltimo e valida.
 		} catch (Exception e) {
 			this.valido = false;
 		}
@@ -37,73 +38,106 @@ public class AFD {
 	}
 	
 	public void definirEstadosFinais(String estadosFinais) {
-		estadosFinais.replaceAll(",", "");
-		estadosFinais.replaceAll(" ", "");
-		
-		if(Estados.indexOf(estadoInicial) == -1)
-			throw new AutomatoException(this,"AUT√îMATO INV√ÅLIDO! O estado final citado q"+Integer.parseInt(estadoInicial)+" n√£o √© um estado v√°lido");
-		}
-
-	public void definirEstadoInicial(String estadoInicial) throws AutomatoException {
-		
-		estadoInicial.replaceAll(",", "");
-		estadoInicial.replaceAll(" ", "");
-		
-		if(Estados.indexOf(estadoInicial) == -1)
-			throw new AutomatoException(this,"AUT√îMATO INV√ÅLIDO! O estado inicial q"+Integer.parseInt(estadoInicial)+" n√£o pertence aos estados");
-			if(estadoInicial.length() > 1) {
-				this.valido = false;
-					throw new AutomatoException(this,"AUT√îMATO INV√ÅLIDO! S√≥ pode haver apenas 1 estado Inicial");
-			}
+		EstadosFinal.replaceAll(",", "");
+		EstadosFinal.replaceAll(" ", "");
+			for(int i=0;i<estadosFinais.length();i++){
+				if(estadosFinais.charAt(i) == ',' || estadosFinais.charAt(i) == ' ')
+					continue;
+				else
+					this.EstadosFinal = this.EstadosFinal  + estadosFinais.charAt(i);
+			}	
 	}
+
+	
 		
-	public void validarTransi√ß√£o(Transicao trans) throws AutomatoException{
+	public int getEstadoInicial() {
+		return EstadoInicial;
+	}
+
+	public void setEstadoInicial(int estadoInicial) {
+		EstadoInicial = estadoInicial;
+	}
+
+	public void validarTransiÁ„o(Transicao trans) throws AutomatoException{
 		
-		if (Alfabeto.indexOf(trans.getElemento()) == -1 )	// isso mostra se existe ou n√£o
-			throw new AutomatoException(this, "AUT√îMATO INV√ÅLIDO! Verifique se o elemento " +trans.getElemento()+ " da sua transi√ß√£o pertence ao seu alfabeto");
+		if (Alfabeto.indexOf(trans.getElemento()) == -1 )	// isso mostra se existe ou n„o
+			throw new AutomatoException(this, "AUT‘MATO INV¡LIDO! Verifique se o elemento " +trans.getElemento()+ " da sua transiÁ„o pertence ao seu alfabeto");
 		if (Estados.indexOf(Integer.toString(trans.geteOrigem())) == -1 || Estados.indexOf(Integer.toString(trans.geteDestino())) == -1) 
-			throw new AutomatoException(this, "AUT√îMATO INV√ÅLIDO! Verifique se seu estados de transi√ß√£o");
+			throw new AutomatoException(this, "AUT‘MATO INV¡LIDO! Verifique se seu estados de transiÁ„o");
 	}
 	
 	public void validarEntrada(String Input) throws AutomatoException {
+		
+		int EstadoCorrente = EstadoInicial;
+		int countElementoI = 0;
+		int elementosDiferentes = 0;// conta os elementos do estado inicial
+		
 		for(int i = 0;i<Input.length();i++) 
 		{
-			if (Alfabeto.indexOf(Input.charAt(i)) == -1 )	{// isso mostra se existe ou n√£o
+			if (Alfabeto.indexOf(Input.charAt(i)) == -1 )	{// isso mostra se existe ou n„o
 				this.valido = false;
-					throw new AutomatoException(this, "AUT√îMATO INV√ÅLIDO! Verifique se os elementos da sua entrada pertence ao alfabeto");
+					throw new AutomatoException(this, "AUT‘MATO INV¡LIDO! Verifique se os elementos da sua entrada pertence ao alfabeto");
 			}
 		}	
 		
-		 for(int j = 0;i<listTransicao.size();j++)
-		 	if(Input.charAt(0) == listTransicao.get(j).getElemento()) {
-				if(listTransicao.get(j).geteOrigem() != this.EstadoInicial) {
-					this.valido = false;
-						throw ne AutomatoException(this, "AUT√îMATO INV√ÅLIDO! O elemento" + Input.charAt(0) + "n√£o sai do Estado Inicial");
+		
+		for(int i = 0;i<listTransicao.size();i++){
+			if(listTransicao.get(i).geteOrigem() == EstadoInicial)
+				countElementoI++;
 		}
-		// verifico os estados finais.
-
-		for(int i=0;i<listTransicao.size();i++)
-			if(Input.charAt(Input.length() - 1 ) == listTransicao.get(i).getElemento()) {
-				for(int j=0;j<EstadosFinal.length();j++){
-					if(listTransicao.get(i).geteDestino() != Character.getNumericValue(EstadosFinal.charAt(j))){
-						System.out.println("Estado destino Transi√ß√£o: " +EstadosFinal.charAt(j));
-						System.out.println("Estados finais: " +EstadosFinal.charAt(j));
-							this.valido = false;
-							throw new AutomatoException(this, "AUT√îMATO INV√ÅLIDO! o elemento " + Input.charAt(Input.leght() - 1) + " da sua entrada n√£o terminou no estado final");
-					}
-					else
-						break;
+		for(int i = 0;i<listTransicao.size();i++){
+			if(listTransicao.get(i).geteOrigem() == EstadoInicial
+			   && Input.charAt(0) != listTransicao.get(i).getElemento())
+				 elementosDiferentes++;
+		}
+		System.out.println(elementosDiferentes);
+		System.out.println(countElementoI);
+		
+		// se meu primeiro char do input for diferente de todos elementos do estado inicial
+		if(elementosDiferentes == countElementoI){ 
+			throw new AutomatoException(this, "verifique se seu primeiro elemento sai de um estado inicial");
+		}
+	
+		
+		for(int i = 0;i<Input.length();i++){
+			for (int j = 0; j<listTransicao.size(); j++){
+				if(Input.charAt(i) == listTransicao.get(j).getElemento()
+				   && listTransicao.get(j).geteOrigem() == EstadoCorrente) {
+					EstadoCorrente = listTransicao.get(j).geteDestino();
+					Entrada +="q"+listTransicao.get(j).geteOrigem() + " -> "+ Input.charAt(i) + " -> "+"q"+EstadoCorrente+"\n";
+					break;
 				}
+			}
 		}
 		
+		/*
+			if(EstadoCorrente == EstadoInicial){
+				this.valido = false;
+			
+				Entrada += "⁄LTIMO ESTADO … INICIAL ";
+		*/
+			if(EstadosFinal.indexOf(Integer.toString(EstadoCorrente)) == -1) {
+				this.valido = false;
+				Entrada += "A SUA ENTRADA N√O FINALIZOU EM UM ESTADO FINAL";
+			} else
+			    Entrada += "AutÙmato validado";
+			
+}
+		
+	public String getEntrada() {
+		return Entrada;
 	}
-	
+
+	public void setEntrada(String entrada) {
+		Entrada = entrada;
+	}
+
 	public void Delta(String delta){			
 		delta = delta.replaceAll(",", "");
 		delta = delta.replaceAll(" ", "");
 	
 		for(int i=0;i<delta.length();i+=3){
-			this.AdicionarTransi√ß√£o(Character.getNumericValue(delta.charAt(i)), delta.charAt(i+1), Character.getNumericValue(delta.charAt(i+2)));		
+			this.AdicionarTransiÁ„o(Character.getNumericValue(delta.charAt(i)), delta.charAt(i+1), Character.getNumericValue(delta.charAt(i+2)));		
 		}
 	}
 	
@@ -135,20 +169,14 @@ public class AFD {
 	}
 
 	public String getEstadosFinal() {
-		return EstadosFinal;
+		return EstadosFinal.replaceAll(",", "");
 	}
 
 	public void setEstadosFinal(String estadosFinal) {
 		EstadosFinal = estadosFinal;
 	}
 
-	public String getEstadoInicial() {
-		return EstadoInicial;
-	}
 
-	public void setEstadoInicial(String estadoInicial) {
-		EstadoInicial = estadoInicial;
-	}
 
 	public boolean isValido() {
 		return valido;
